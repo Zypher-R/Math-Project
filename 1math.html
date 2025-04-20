@@ -1,0 +1,726 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+  <title>Math & Programming for Beginners</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 20px;
+      transition: background 0.3s, color 0.3s;
+      line-height: 1.6;
+    }
+    :root {
+      --bg: #f0f8ff;
+      --text: #000;
+      --primary: #4a6fa5;
+      --secondary: #166088;
+      --accent: #4fc3f7;
+      --success: #4caf50;
+      --error: #f44336;
+    }
+    .dark {
+      --bg: #121212;
+      --text: #eee;
+      --primary: #3a5683;
+      --secondary: #0d4b6e;
+      --accent: #0288d1;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    input, button, select {
+      padding: 10px;
+      margin: 5px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid var(--primary);
+      background: var(--bg);
+      color: var(--text);
+    }
+    button {
+      background-color: var(--primary);
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: var(--secondary);
+    }
+    .output {
+      margin-top: 20px;
+      background: var(--bg);
+      border: 2px solid var(--primary);
+      border-radius: 10px;
+      padding: 15px;
+    }
+    .result-bar {
+      background: rgba(76, 175, 80, 0.2);
+      padding: 8px;
+      margin-bottom: 8px;
+      border-left: 5px solid var(--success);
+      border-radius: 5px;
+    }
+    .error-bar {
+      background: rgba(244, 67, 54, 0.2);
+      padding: 8px;
+      margin-bottom: 8px;
+      border-left: 5px solid var(--error);
+      border-radius: 5px;
+    }
+    .section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: rgba(74, 111, 165, 0.1);
+      border-radius: 10px;
+    }
+    .chart-container {
+      position: relative;
+      height: 300px;
+      margin: 20px 0;
+    }
+    .tabs {
+      display: flex;
+      margin-bottom: 20px;
+    }
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      background: rgba(74, 111, 165, 0.2);
+      margin-right: 5px;
+      border-radius: 5px 5px 0 0;
+    }
+    .tab.active {
+      background: var(--primary);
+      color: white;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .history-item {
+      padding: 8px;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+      cursor: pointer;
+    }
+    .history-item:hover {
+      background: rgba(0,0,0,0.05);
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: white;
+      font-size: 12px;
+      margin-left: 5px;
+    }
+    .progress-container {
+      width: 100%;
+      background-color: #ddd;
+      border-radius: 5px;
+      margin: 10px 0;
+    }
+    .progress-bar {
+      height: 20px;
+      background-color: var(--success);
+      border-radius: 5px;
+      text-align: center;
+      line-height: 20px;
+      color: white;
+    }
+    .tooltip {
+      position: relative;
+      display: inline-block;
+      border-bottom: 1px dotted var(--text);
+    }
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 200px;
+      background-color: var(--primary);
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -100px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
+  <h1>Math in Programming <span class="badge" id="levelBadge">1</span></h1>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('basic')">Basic Math</div>
+    <div class="tab" onclick="switchTab('visual')">Visualization</div>
+    <div class="tab" onclick="switchTab('games')">Games</div>
+    <div class="tab" onclick="switchTab('progress')">Progress</div>
+  </div>
+
+  <div id="basic" class="tab-content active section">
+    <h2>Basic Math Operations</h2>
+    <p>Enter two numbers:</p>
+    <input type="number" id="x" placeholder="First number">
+    <input type="number" id="y" placeholder="Second number">
+    <select id="operation">
+      <option value="add">Addition (+)</option>
+      <option value="subtract">Subtraction (-)</option>
+      <option value="multiply">Multiplication (×)</option>
+      <option value="divide">Division (÷)</option>
+      <option value="power">Exponent (^)</option>
+      <option value="modulo">Modulo (%)</option>
+    </select>
+    <button onclick="doMath()">Calculate</button>
+    <button onclick="saveToHistory()">Save to History</button>
+    <div id="results" class="output"></div>
+    
+    <h3>Calculation History</h3>
+    <div id="history" class="output"></div>
+  </div>
+
+  <div id="visual" class="tab-content section">
+    <h2>Visualize Numbers</h2>
+    <div class="chart-container">
+      <canvas id="mathChart"></canvas>
+    </div>
+    <div class="chart-container">
+      <canvas id="pieChart"></canvas>
+    </div>
+    <button onclick="generateRandomData()">Generate Random Data</button>
+  </div>
+
+  <div id="games" class="tab-content section">
+    <h2>Math Games</h2>
+    
+    <div class="section">
+      <h3>Quick Math Quiz</h3>
+      <button onclick="generateQuiz()">New Question</button>
+      <p id="quizQuestion"></p>
+      <input type="number" id="quizAnswer" placeholder="Your answer">
+      <button onclick="checkQuizAnswer()">Check Answer</button>
+      <p id="quizResult"></p>
+      <div class="progress-container">
+        <div id="quizProgress" class="progress-bar" style="width: 0%">0%</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>30-second Challenge</h3>
+      <button onclick="startGame()">Start Game</button>
+      <p id="gameQuestion"></p>
+      <input type="number" id="gameAnswer" placeholder="Your answer">
+      <button onclick="submitGameAnswer()">Submit</button>
+      <p id="gameFeedback"></p>
+      <p id="gameScore"></p>
+      <div class="progress-container">
+        <div id="gameTimer" class="progress-bar" style="width: 100%">30s</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Equation Solver <span class="tooltip">(?)
+        <span class="tooltiptext">Enter equations like "2x + 5 = 15" or "3^2 + y = 20"</span>
+      </span></h3>
+      <input type="text" id="equationInput" placeholder="Enter equation (e.g., 2x + 5 = 15)">
+      <button onclick="solveEquation()">Solve</button>
+      <div id="equationResult" class="output"></div>
+    </div>
+  </div>
+
+  <div id="progress" class="tab-content section">
+    <h2>Student Progress</h2>
+    <div id="progressReport" class="output"></div>
+    
+    <h3>Leaderboard</h3>
+    <ol id="leaderboard"></ol>
+    
+    <h3>Download Resources</h3>
+    <button onclick="downloadNotes()">Download Math Basics PDF</button>
+    <button onclick="exportProgress()">Export Progress Data</button>
+    <button onclick="importProgress()">Import Progress Data</button>
+    <input type="file" id="progressImport" style="display: none;">
+  </div>
+</div>
+
+<script>
+// Global variables
+let dark = false;
+let calculationHistory = [];
+let quizCorrect = 0;
+let quizTotal = 0;
+let gameTimer, score = 0, totalQuestions = 0, gameAnswer;
+let timeLeft = 30;
+let userLevel = 1;
+let userXP = 0;
+
+// Initialize the app
+document.addEventListener('DOMContentLoaded', function() {
+  loadProgress();
+  updateLevelBadge();
+  generateRandomData();
+  renderHistory();
+  updateLeaderboard();
+});
+
+// Dark mode toggle
+function toggleDarkMode() {
+  dark = !dark;
+  document.body.classList.toggle("dark");
+  localStorage.setItem('darkMode', dark);
+}
+
+// Tab switching
+function switchTab(tabId) {
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.classList.remove('active');
+  });
+  document.querySelectorAll('.tab-content').forEach(content => {
+    content.classList.remove('active');
+  });
+  
+  document.querySelector(`.tab[onclick="switchTab('${tabId}')"]`).classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+
+// Math operations
+function doMath() {
+  const x = parseFloat(document.getElementById("x").value);
+  const y = parseFloat(document.getElementById("y").value);
+  const operation = document.getElementById("operation").value;
+  const results = document.getElementById("results");
+  
+  if (isNaN(x) || isNaN(y)) {
+    results.innerHTML = '<div class="error-bar">Please enter valid numbers</div>';
+    return;
+  }
+  
+  let result;
+  let operationSymbol;
+  
+  switch(operation) {
+    case 'add':
+      result = x + y;
+      operationSymbol = '+';
+      break;
+    case 'subtract':
+      result = x - y;
+      operationSymbol = '-';
+      break;
+    case 'multiply':
+      result = x * y;
+      operationSymbol = '×';
+      break;
+    case 'divide':
+      result = y !== 0 ? (x / y).toFixed(2) : "undefined";
+      operationSymbol = '÷';
+      break;
+    case 'power':
+      result = Math.pow(x, y);
+      operationSymbol = '^';
+      break;
+    case 'modulo':
+      result = y !== 0 ? x % y : "undefined";
+      operationSymbol = '%';
+      break;
+    default:
+      result = "Unknown operation";
+  }
+  
+  results.innerHTML = `
+    <div class="result-bar">${x} ${operationSymbol} ${y} = ${result}</div>
+  `;
+  
+  drawCharts(x, y, operation);
+  addXP(5);
+}
+
+function drawCharts(a, b, operation) {
+  // Bar chart
+  const ctx = document.getElementById('mathChart').getContext('2d');
+  if (window.mathChart) window.mathChart.destroy();
+  
+  let labels = ['x', 'y'];
+  let data = [a, b];
+  
+  switch(operation) {
+    case 'add':
+      labels.push('x+y');
+      data.push(a + b);
+      break;
+    case 'subtract':
+      labels.push('x-y');
+      data.push(a - b);
+      break;
+    case 'multiply':
+      labels.push('x×y');
+      data.push(a * b);
+      break;
+    case 'divide':
+      labels.push('x÷y');
+      data.push(b !== 0 ? a / b : 0);
+      break;
+    case 'power':
+      labels.push('x^y');
+      data.push(Math.pow(a, b));
+      break;
+    case 'modulo':
+      labels.push('x%y');
+      data.push(b !== 0 ? a % b : 0);
+      break;
+  }
+  
+  window.mathChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Values',
+        data: data,
+        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+  
+  // Pie chart
+  const pieCtx = document.getElementById('pieChart').getContext('2d');
+  if (window.pieChart) window.pieChart.destroy();
+  
+  window.pieChart = new Chart(pieCtx, {
+    type: 'pie',
+    data: {
+      labels: ['x', 'y'],
+      datasets: [{
+        data: [a, b],
+        backgroundColor: [
+          'rgba(255, 99, 132, 0.6)',
+          'rgba(54, 162, 235, 0.6)'
+        ],
+        borderColor: [
+          'rgba(255, 99, 132, 1)',
+          'rgba(54, 162, 235, 1)'
+        ],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false
+    }
+  });
+}
+
+function generateRandomData() {
+  const x = Math.floor(Math.random() * 20) + 1;
+  const y = Math.floor(Math.random() * 20) + 1;
+  document.getElementById("x").value = x;
+  document.getElementById("y").value = y;
+  doMath();
+}
+
+// History functions
+function saveToHistory() {
+  const x = parseFloat(document.getElementById("x").value);
+  const y = parseFloat(document.getElementById("y").value);
+  const operation = document.getElementById("operation").value;
+  
+  if (isNaN(x) || isNaN(y)) return;
+  
+  const timestamp = new Date().toLocaleString();
+  let operationSymbol;
+  let result;
+  
+  switch(operation) {
+    case 'add':
+      operationSymbol = '+';
+      result = x + y;
+      break;
+    case 'subtract':
+      operationSymbol = '-';
+      result = x - y;
+      break;
+    case 'multiply':
+      operationSymbol = '×';
+      result = x * y;
+      break;
+    case 'divide':
+      operationSymbol = '÷';
+      result = y !== 0 ? (x / y).toFixed(2) : "undefined";
+      break;
+    case 'power':
+      operationSymbol = '^';
+      result = Math.pow(x, y);
+      break;
+    case 'modulo':
+      operationSymbol = '%';
+      result = y !== 0 ? x % y : "undefined";
+      break;
+  }
+  
+  calculationHistory.push({
+    x: x,
+    y: y,
+    operation: operation,
+    operationSymbol: operationSymbol,
+    result: result,
+    timestamp: timestamp
+  });
+  
+  localStorage.setItem('calculationHistory', JSON.stringify(calculationHistory));
+  renderHistory();
+}
+
+function renderHistory() {
+  const historyDiv = document.getElementById('history');
+  const savedHistory = localStorage.getItem('calculationHistory');
+  
+  if (savedHistory) {
+    calculationHistory = JSON.parse(savedHistory);
+  }
+  
+  if (calculationHistory.length === 0) {
+    historyDiv.innerHTML = '<div>No history yet</div>';
+    return;
+  }
+  
+  historyDiv.innerHTML = calculationHistory.map((item, index) => `
+    <div class="history-item" onclick="loadFromHistory(${index})">
+      ${item.x} ${item.operationSymbol} ${item.y} = ${item.result} 
+      <small>(${item.timestamp})</small>
+    </div>
+  `).join('');
+}
+
+function loadFromHistory(index) {
+  const item = calculationHistory[index];
+  document.getElementById("x").value = item.x;
+  document.getElementById("y").value = item.y;
+  document.getElementById("operation").value = item.operation;
+  doMath();
+}
+
+// Quiz functions
+let currentQuizAnswer;
+function generateQuiz() {
+  const operations = ['+', '-', '×'];
+  const operation = operations[Math.floor(Math.random() * operations.length)];
+  const a = Math.floor(Math.random() * 10) + 1;
+  const b = Math.floor(Math.random() * 10) + 1;
+  
+  switch(operation) {
+    case '+':
+      currentQuizAnswer = a + b;
+      break;
+    case '-':
+      currentQuizAnswer = a - b;
+      break;
+    case '×':
+      currentQuizAnswer = a * b;
+      break;
+  }
+  
+  document.getElementById("quizQuestion").textContent = `What is ${a} ${operation} ${b}?`;
+  document.getElementById("quizResult").textContent = "";
+  document.getElementById("quizAnswer").value = "";
+  document.getElementById("quizAnswer").focus();
+}
+
+function checkQuizAnswer() {
+  const answer = parseFloat(document.getElementById("quizAnswer").value);
+  quizTotal++;
+  
+  if (answer === currentQuizAnswer) {
+    document.getElementById("quizResult").textContent = "Correct!";
+    document.getElementById("quizResult").style.color = "var(--success)";
+    quizCorrect++;
+    addXP(10);
+  } else {
+    document.getElementById("quizResult").textContent = `Incorrect. The answer was ${currentQuizAnswer}.`;
+    document.getElementById("quizResult").style.color = "var(--error)";
+    addXP(2);
+  }
+  
+  const percentage = Math.round((quizCorrect / quizTotal) * 100);
+  document.getElementById("quizProgress").style.width = `${percentage}%`;
+  document.getElementById("quizProgress").textContent = `${percentage}%`;
+  
+  saveProgress();
+  setTimeout(generateQuiz, 1500);
+}
+
+// Game functions
+function startGame() {
+  score = 0;
+  totalQuestions = 0;
+  timeLeft = 30;
+  document.getElementById("gameScore").textContent = `Time left: ${timeLeft}s | Score: 0`;
+  document.getElementById("gameFeedback").textContent = "";
+  document.getElementById("gameTimer").style.width = "100%";
+  document.getElementById("gameTimer").textContent = "30s";
+  
+  clearInterval(gameTimer);
+  gameTimer = setInterval(() => {
+    timeLeft--;
+    document.getElementById("gameScore").textContent = `Time left: ${timeLeft}s | Score: ${score}`;
+    const percent = (timeLeft / 30) * 100;
+    document.getElementById("gameTimer").style.width = `${percent}%`;
+    document.getElementById("gameTimer").textContent = `${timeLeft}s`;
+    
+    if (timeLeft <= 0) {
+      clearInterval(gameTimer);
+      document.getElementById("gameQuestion").textContent = "Time's up!";
+      document.getElementById("gameFeedback").textContent = `You answered ${score} out of ${totalQuestions} correctly.`;
+      addXP(score * 5);
+    }
+  }, 1000);
+  
+  nextGameQuestion();
+}
+
+function nextGameQuestion() {
+  const operations = ['+', '-', '×'];
+  const operation = operations[Math.floor(Math.random() * operations.length)];
+  let a, b;
+  
+  if (operation === '×') {
+    a = Math.floor(Math.random() * 5) + 1;
+    b = Math.floor(Math.random() * 5) + 1;
+  } else {
+    a = Math.floor(Math.random() * 10) + 1;
+    b = Math.floor(Math.random() * 10) + 1;
+  }
+  
+  switch(operation) {
+    case '+':
+      gameAnswer = a + b;
+      break;
+    case '-':
+      gameAnswer = a - b;
+      break;
+    case '×':
+      gameAnswer = a * b;
+      break;
+  }
+  
+  document.getElementById("gameQuestion").textContent = `What is ${a} ${operation} ${b}?`;
+  document.getElementById("gameAnswer").value = "";
+  document.getElementById("gameAnswer").focus();
+}
+
+function submitGameAnswer() {
+  const answer = parseFloat(document.getElementById("gameAnswer").value);
+  totalQuestions++;
+  
+  if (answer === gameAnswer) {
+    score++;
+    document.getElementById("gameFeedback").textContent = "Correct!";
+    document.getElementById("gameFeedback").style.color = "var(--success)";
+  } else {
+    document.getElementById("gameFeedback").textContent = `Incorrect. The answer was ${gameAnswer}.`;
+    document.getElementById("gameFeedback").style.color = "var(--error)";
+  }
+  
+  document.getElementById("gameScore").textContent = `Time left: ${timeLeft}s | Score: ${score}`;
+  nextGameQuestion();
+}
+
+// Equation solver
+function solveEquation() {
+  const equation = document.getElementById("equationInput").value.trim();
+  const resultDiv = document.getElementById("equationResult");
+  
+  if (!equation) {
+    resultDiv.innerHTML = '<div class="error-bar">Please enter an equation</div>';
+    return;
+  }
+  
+  try {
+    // Simple equation solving (for demo purposes)
+    if (equation.includes('x') && equation.includes('=')) {
+      const parts = equation.split('=');
+      const left = parts[0].trim();
+      const right = parts[1].trim();
+      
+      // Very basic linear equation solver (ax + b = c)
+      if (left.includes('x')) {
+        const leftParts = left.split(/[+-]/);
+        const a = parseFloat(leftParts[0].replace('x', '')) || 1;
+        const b = parseFloat(leftParts[1]) || 0;
+        const c = parseFloat(right);
+        
+        const x = (c - b) / a;
+        resultDiv.innerHTML = `<div class="result-bar">Solution: x = ${x.toFixed(2)}</div>`;
+        addXP(15);
+        return;
+      }
+    }
+    
+    // Fallback to eval (with safety checks)
+    if (!equation.includes('=')) {
+      const safeEquation = equation.replace(/[^0-9+\-*/.()%^<>=]/g, '');
+      const result = eval(safeEquation);
+      resultDiv.innerHTML = `<div class="result-bar">Result: ${result}</div>`;
+      addXP(10);
+      return;
+    }
+    
+    resultDiv.innerHTML = '<div class="error-bar">Could not solve this equation type yet</div>';
+  } catch (e) {
+    resultDiv.innerHTML = `<div class="error-bar">Error: ${e.message}</div>`;
+  }
+}
+
+// Progress tracking
+function addXP(amount) {
+  userXP += amount;
+  const xpNeeded = userLevel * 100;
+  
+  if (userXP >= xpNeeded) {
+    userLevel++;
+    userXP = userXP - xpNeeded;
+    updateLevelBadge();
+    showLevelUpMessage();
+  }
+  
+  saveProgress();
+  updateProgressReport();
+}
+
+function updateLevelBadge() {
+  document.getElementById('levelBadge').textContent = userLevel;
+}
+
+function showLevelUpMessage() {
+  const progressDiv = document.getElementById('progressReport');
+  const message = document.createElement('div');
+  message.className = 'result-bar';
+  mess
